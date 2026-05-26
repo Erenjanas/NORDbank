@@ -1,0 +1,1211 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NORDbank — Geleceğin Bankacılığı</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['Space Grotesk', 'sans-serif'],
+                    },
+                    colors: {
+                        nord: {
+                            50: '#f0f9ff', 100: '#e0f2fe', 500: '#0ea5e9', 600: '#0284c7',
+                            700: '#0369a1', 800: '#075985', 900: '#0c4a6e', 950: '#082f49',
+                        },
+                        dark: { 900: '#0a0f1c', 800: '#111827', 700: '#1f2937', 600: '#374151' }
+                    },
+                    animation: {
+                        'gradient': 'gradient 8s linear infinite',
+                        'float': 'float 6s ease-in-out infinite',
+                        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'shimmer': 'shimmer 2s infinite',
+                    },
+                    keyframes: {
+                        gradient: {
+                            '0%, 100%': { backgroundPosition: '0% 50%' },
+                            '50%': { backgroundPosition: '100% 50%' },
+                        },
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-20px)' },
+                        },
+                        shimmer: {
+                            '0%': { left: '-100%' },
+                            '100%': { left: '100%' }
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Inter', sans-serif; background: #0a0f1c; }
+        .glass { background: rgba(17, 24, 39, 0.7); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.05); }
+        .glass-card { background: rgba(31, 41, 55, 0.4); backdrop-filter: blur(16px); border: 1px solid rgba(255,255,255,0.08); }
+        .neon-glow { box-shadow: 0 0 20px rgba(14, 165, 233, 0.3); }
+        .text-glow { text-shadow: 0 0 30px rgba(14, 165, 233, 0.5); }
+        .card-hover { transition: all 0.3s ease; }
+        .card-hover:hover { transform: translateY(-4px); box-shadow: 0 20px 40px rgba(0,0,0,0.4); border-color: rgba(14, 165, 233, 0.3); }
+        .gradient-text { background: linear-gradient(135deg, #0ea5e9, #8b5cf6, #0ea5e9); background-size: 200% 200%; -webkit-background-clip: text; -webkit-text-fill-color: transparent; animation: gradient 3s ease infinite; }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .input-field { background: rgba(17, 24, 39, 0.8); border: 1px solid rgba(255,255,255,0.1); transition: all 0.3s; }
+        .input-field:focus { border-color: #0ea5e9; box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.1); outline: none; }
+        .btn-primary { background: linear-gradient(135deg, #0ea5e9, #0284c7); transition: all 0.3s; }
+        .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 10px 30px rgba(14, 165, 233, 0.4); }
+        .btn-crypto { background: linear-gradient(135deg, #f59e0b, #d97706); transition: all 0.3s; }
+        .btn-crypto:hover { transform: translateY(-1px); box-shadow: 0 10px 30px rgba(245, 158, 11, 0.4); }
+        .btn-success { background: linear-gradient(135deg, #10b981, #059669); transition: all 0.3s; }
+        .btn-success:hover { transform: translateY(-1px); box-shadow: 0 10px 30px rgba(16, 185, 129, 0.4); }
+        .bg-grid { background-image: linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px); background-size: 50px 50px; }
+        .blob { position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.4; pointer-events: none; }
+        .shimmer-bg { position: relative; overflow: hidden; }
+        .shimmer-bg::after { content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent); animation: shimmer 2s infinite; }
+        .crypto-card { background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(217, 119, 6, 0.05)); border: 1px solid rgba(245, 158, 11, 0.2); }
+        .wallet-card { background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(5, 150, 105, 0.05)); border: 1px solid rgba(16, 185, 129, 0.2); }
+        @keyframes shimmer { 100% { left: 100%; } }
+        .modal-enter { animation: modalEnter 0.3s ease-out; }
+        @keyframes modalEnter { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+    </style>
+</head>
+<body class="text-gray-100 antialiased overflow-x-hidden">
+
+    <!-- Background Effects -->
+    <div class="fixed inset-0 bg-grid z-0"></div>
+    <div class="blob bg-blue-600 w-96 h-96 -top-48 -left-48 animate-pulse-slow z-0"></div>
+    <div class="blob bg-purple-600 w-96 h-96 top-1/2 right-0 animate-pulse-slow z-0" style="animation-delay: 2s;"></div>
+    <div class="blob bg-cyan-600 w-72 h-72 bottom-0 left-1/3 animate-pulse-slow z-0" style="animation-delay: 4s;"></div>
+
+    <!-- Navigation -->
+    <nav class="fixed top-0 w-full z-50 glass border-b border-white/5">
+        <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+            <div class="flex items-center gap-3 cursor-pointer" onclick="showSection('landing')">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center font-bold text-white text-lg">N</div>
+                <span class="font-display font-bold text-xl tracking-tight">NORD<span class="text-blue-400">bank</span></span>
+            </div>
+            <div class="hidden md:flex items-center gap-8 text-sm font-medium text-gray-400">
+                <a href="#" onclick="showSection('landing')" class="hover:text-white transition-colors">Ana Sayfa</a>
+                <a href="#" onclick="scrollToFeatures()" class="hover:text-white transition-colors">Özellikler</a>
+                <a href="#" onclick="scrollToPricing()" class="hover:text-white transition-colors">Fiyatlandırma</a>
+                <a href="#" onclick="scrollToCrypto()" class="hover:text-white transition-colors">Kripto</a>
+            </div>
+            <div class="flex items-center gap-4" id="nav-auth">
+                <button onclick="showAuth('login')" class="text-sm font-medium text-gray-300 hover:text-white transition-colors">Giriş Yap</button>
+                <button onclick="showAuth('register')" class="btn-primary px-5 py-2.5 rounded-lg text-sm font-semibold text-white">Hesap Aç</button>
+            </div>
+            <div class="hidden items-center gap-4" id="nav-user">
+                <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-xs font-bold" id="nav-avatar">A</div>
+                    <span class="text-sm text-gray-300" id="user-name-display"></span>
+                </div>
+                <button onclick="logout()" class="text-sm text-red-400 hover:text-red-300 transition-colors">Çıkış</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- LANDING PAGE -->
+    <section id="landing" class="relative z-10 pt-32 pb-20 px-6">
+        <div class="max-w-7xl mx-auto">
+            <div class="grid lg:grid-cols-2 gap-16 items-center">
+                <div class="space-y-8">
+                    <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full glass text-sm text-blue-400 border border-blue-500/20">
+                        <span class="w-2 h-2 rounded-full bg-blue-400 animate-pulse"></span>
+                        Şimdi 50.000+ kullanıcıya katıl
+                    </div>
+                    <h1 class="font-display text-5xl lg:text-7xl font-bold leading-tight">
+                        Geleceğin <br>
+                        <span class="gradient-text">Bankacılığı</span>
+                    </h1>
+                    <p class="text-lg text-gray-400 leading-relaxed max-w-lg">
+                        Anında para transferi, kripto cüzdan, yatırım araçları ve daha fazlası. NORDbank ile paranızı güvenle yönetin.
+                    </p>
+                    <div class="flex flex-wrap gap-4">
+                        <button onclick="showAuth('register')" class="btn-primary px-8 py-4 rounded-xl text-white font-semibold text-lg flex items-center gap-2">
+                            Ücretsiz Başla
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path></svg>
+                        </button>
+                        <button onclick="showAuth('login')" class="glass px-8 py-4 rounded-xl text-white font-semibold text-lg hover:bg-white/5 transition-all">
+                            Giriş Yap
+                        </button>
+                    </div>
+                    <div class="flex items-center gap-6 pt-4 text-sm text-gray-500">
+                        <div class="flex items-center gap-2">
+                            <svg class="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            256-bit Şifreleme
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <svg class="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            FDIC Güvencesi
+                        </div>
+                    </div>
+                </div>
+                <div class="relative">
+                    <div class="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-600 rounded-3xl blur-3xl opacity-20 animate-pulse-slow"></div>
+                    <div class="relative glass-card rounded-3xl p-6 space-y-6 animate-float">
+                        <div class="flex justify-between items-center mb-4">
+                            <div class="flex items-center gap-3">
+                                <div class="w-12 h-12 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white font-bold">A</div>
+                                <div>
+                                    <p class="font-semibold">Ahmet Yılmaz</p>
+                                    <p class="text-xs text-gray-400">Premium Üye</p>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-xs text-gray-400">Toplam Bakiye</p>
+                                <p class="text-2xl font-bold text-white">₺124,580.00</p>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-3 gap-3">
+                            <div class="glass rounded-xl p-3 text-center cursor-pointer hover:bg-white/5 transition-all">
+                                <div class="w-10 h-10 mx-auto mb-2 rounded-full bg-blue-500/20 flex items-center justify-center">
+                                    <svg class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
+                                </div>
+                                <p class="text-xs font-medium">Gönder</p>
+                            </div>
+                            <div class="glass rounded-xl p-3 text-center cursor-pointer hover:bg-white/5 transition-all">
+                                <div class="w-10 h-10 mx-auto mb-2 rounded-full bg-green-500/20 flex items-center justify-center">
+                                    <svg class="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path></svg>
+                                </div>
+                                <p class="text-xs font-medium">Al</p>
+                            </div>
+                            <div class="glass rounded-xl p-3 text-center cursor-pointer hover:bg-white/5 transition-all">
+                                <div class="w-10 h-10 mx-auto mb-2 rounded-full bg-purple-500/20 flex items-center justify-center">
+                                    <svg class="w-5 h-5 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                                </div>
+                                <p class="text-xs font-medium">Yatırım</p>
+                            </div>
+                        </div>
+                        <div class="space-y-3">
+                            <div class="flex justify-between text-sm">
+                                <span class="text-gray-400">Son İşlemler</span>
+                                <span class="text-blue-400 cursor-pointer">Tümünü Gör</span>
+                            </div>
+                            <div class="space-y-2">
+                                <div class="flex justify-between items-center p-3 rounded-lg bg-white/5">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-8 h-8 rounded-full bg-red-500/20 flex items-center justify-center">
+                                            <svg class="w-4 h-4 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"></path></svg>
+                                        </div>
+                                        <div>
+                                            <p class="text-sm font-medium">Netflix Abonelik</p>
+                                            <p class="text-xs text-gray-500">Bugün, 14:30</p>
+                                        </div>
+                                    </div>
+                                    <span class="text-sm font-semibold text-red-400">-₺119.99</span>
+                                </div>
+                                <div class="flex justify-between items-center p-3 rounded-lg bg-white/5">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-8 h-8 rounded-full bg-green-500/20 flex items-center justify-center">
+                                            <svg class="w-4 h-4 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                                        </div>
+                                        <div>
+                                            <p class="text-sm font-medium">Maaş Ödemesi</p>
+                                            <p class="text-xs text-gray-500">Dün, 09:00</p>
+                                        </div>
+                                    </div>
+                                    <span class="text-sm font-semibold text-green-400">+₺45,000.00</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FEATURES -->
+    <section id="features" class="relative z-10 py-20 px-6">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-16">
+                <h2 class="font-display text-4xl font-bold mb-4">Neden <span class="gradient-text">NORDbank?</span></h2>
+                <p class="text-gray-400 max-w-2xl mx-auto">Geleneksel bankacılığı unutun. Modern, hızlı ve güvenli finansal özgürlük.</p>
+            </div>
+            <div class="grid md:grid-cols-3 gap-6">
+                <div class="glass-card rounded-2xl p-8 card-hover">
+                    <div class="w-14 h-14 rounded-2xl bg-blue-500/10 flex items-center justify-center mb-6">
+                        <svg class="w-7 h-7 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">Anında Transfer</h3>
+                    <p class="text-gray-400 text-sm leading-relaxed">7/24 anında para transferi. EFT ve havale saatlerini beklemeyin. Saniyeler içinde gönderin.</p>
+                </div>
+                <div class="glass-card rounded-2xl p-8 card-hover">
+                    <div class="w-14 h-14 rounded-2xl bg-purple-500/10 flex items-center justify-center mb-6">
+                        <svg class="w-7 h-7 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">Banka Seviyesi Güvenlik</h3>
+                    <p class="text-gray-400 text-sm leading-relaxed">256-bit SSL şifreleme, biyometrik doğrulama ve çift faktörlü kimlik doğrulama.</p>
+                </div>
+                <div class="glass-card rounded-2xl p-8 card-hover">
+                    <div class="w-14 h-14 rounded-2xl bg-green-500/10 flex items-center justify-center mb-6">
+                        <svg class="w-7 h-7 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">Akıllı Yatırım</h3>
+                    <p class="text-gray-400 text-sm leading-relaxed">AI destekli portföy önerileri, otomatik birikim ve kripto para entegrasyonu.</p>
+                </div>
+                <div class="glass-card rounded-2xl p-8 card-hover">
+                    <div class="w-14 h-14 rounded-2xl bg-orange-500/10 flex items-center justify-center mb-6">
+                        <svg class="w-7 h-7 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">Döviz & Kripto</h3>
+                    <p class="text-gray-400 text-sm leading-relaxed">40+ para birimi ve 20+ kripto para ile işlem yapın. Gerçek zamanlı kur takibi.</p>
+                </div>
+                <div class="glass-card rounded-2xl p-8 card-hover">
+                    <div class="w-14 h-14 rounded-2xl bg-pink-500/10 flex items-center justify-center mb-6">
+                        <svg class="w-7 h-7 text-pink-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">Sanal Kartlar</h3>
+                    <p class="text-gray-400 text-sm leading-relaxed">Anında sanal kart oluşturun. Güvenli alışveriş için tek kullanımlık kart numaraları.</p>
+                </div>
+                <div class="glass-card rounded-2xl p-8 card-hover">
+                    <div class="w-14 h-14 rounded-2xl bg-cyan-500/10 flex items-center justify-center mb-6">
+                        <svg class="w-7 h-7 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">7/24 Destek</h3>
+                    <p class="text-gray-400 text-sm leading-relaxed">AI destekli chatbot ve gerçek insan desteği. Sorularınızı anında yanıtlayın.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CRYPTO SECTION -->
+    <section id="crypto-section" class="relative z-10 py-20 px-6">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-12">
+                <h2 class="font-display text-4xl font-bold mb-4">Kripto Para <span class="gradient-text">Takibi</span></h2>
+                <p class="text-gray-400 max-w-2xl mx-auto">Anlık fiyatlar, piyasa analizi ve kripto haberleri. NORDwallet ile portföyünüzü yönetin.</p>
+            </div>
+
+            <!-- Live Prices -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12">
+                <div class="crypto-card rounded-2xl p-6 text-center card-hover">
+                    <div class="w-12 h-12 mx-auto mb-3 rounded-full bg-orange-500/20 flex items-center justify-center">
+                        <span class="text-orange-400 font-bold text-lg">₿</span>
+                    </div>
+                    <p class="text-sm text-gray-400">Bitcoin</p>
+                    <p class="text-2xl font-bold text-white mt-1" id="btc-price">$93,300</p>
+                    <p class="text-sm text-green-400 mt-1 flex items-center justify-center gap-1">
+                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
+                        +7.2%
+                    </p>
+                </div>
+                <div class="crypto-card rounded-2xl p-6 text-center card-hover">
+                    <div class="w-12 h-12 mx-auto mb-3 rounded-full bg-blue-500/20 flex items-center justify-center">
+                        <span class="text-blue-400 font-bold text-lg">Ξ</span>
+                    </div>
+                    <p class="text-sm text-gray-400">Ethereum</p>
+                    <p class="text-2xl font-bold text-white mt-1" id="eth-price">$3,450</p>
+                    <p class="text-sm text-green-400 mt-1 flex items-center justify-center gap-1">
+                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
+                        +4.8%
+                    </p>
+                </div>
+                <div class="crypto-card rounded-2xl p-6 text-center card-hover">
+                    <div class="w-12 h-12 mx-auto mb-3 rounded-full bg-purple-500/20 flex items-center justify-center">
+                        <span class="text-purple-400 font-bold text-lg">S</span>
+                    </div>
+                    <p class="text-sm text-gray-400">Solana</p>
+                    <p class="text-2xl font-bold text-white mt-1" id="sol-price">$142.50</p>
+                    <p class="text-sm text-red-400 mt-1 flex items-center justify-center gap-1">
+                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 17h8m0 0V9m0 8l-8-8-4 4-6-6"></path></svg>
+                        -1.2%
+                    </p>
+                </div>
+                <div class="crypto-card rounded-2xl p-6 text-center card-hover">
+                    <div class="w-12 h-12 mx-auto mb-3 rounded-full bg-green-500/20 flex items-center justify-center">
+                        <span class="text-green-400 font-bold text-lg">X</span>
+                    </div>
+                    <p class="text-sm text-gray-400">XRP</p>
+                    <p class="text-2xl font-bold text-white mt-1" id="xrp-price">$2.35</p>
+                    <p class="text-sm text-green-400 mt-1 flex items-center justify-center gap-1">
+                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
+                        +6.5%
+                    </p>
+                </div>
+            </div>
+
+            <!-- NORDwallet CTA -->
+            <div class="wallet-card rounded-3xl p-8 mb-12 text-center relative overflow-hidden">
+                <div class="absolute inset-0 bg-gradient-to-r from-green-500/10 to-blue-500/10"></div>
+                <div class="relative z-10">
+                    <div class="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-green-400 to-blue-500 flex items-center justify-center">
+                        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
+                    </div>
+                    <h3 class="font-display text-2xl font-bold mb-2">Kriptolardan Haberiniz Olsun</h3>
+                    <p class="text-gray-400 mb-6 max-w-lg mx-auto">NORDwallet ile tüm kripto paralarınızı tek bir yerden yönetin. Anlık fiyat takibi, portföy analizi ve hızlı işlem imkanı.</p>
+                    <button onclick="window.open('https://nor-dwallet.vercel.app/', '_blank')" class="btn-success px-8 py-4 rounded-xl text-white font-semibold text-lg flex items-center gap-2 mx-auto hover:scale-105 transition-transform">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                        NORDwallet'e Git
+                    </button>
+                </div>
+            </div>
+
+            <!-- Crypto News -->
+            <div class="glass-card rounded-2xl p-8">
+                <h3 class="font-display text-xl font-bold mb-6 flex items-center gap-2">
+                    <svg class="w-5 h-5 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"></path></svg>
+                    Kripto Haberleri
+                </h3>
+                <div class="space-y-4" id="crypto-news">
+                    <div class="flex items-start gap-4 p-4 rounded-xl bg-white/5 hover:bg-white/10 transition-all cursor-pointer">
+                        <div class="w-12 h-12 rounded-lg bg-orange-500/20 flex items-center justify-center flex-shrink-0">
+                            <span class="text-orange-400 font-bold">₿</span>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold mb-1">Bitcoin 2026'da Yeni Zirvelere Ulaşacak</h4>
+                            <p class="text-sm text-gray-400">Analistler BTC'nin 200.000-300.000 dolar aralığına ulaşmasını bekliyor. ETF onayları ve kurumsal benimseme fiyatları yükseltiyor.</p>
+                            <p class="text-xs text-gray-500 mt-2">2 saat önce • CoinDesk</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start gap-4 p-4 rounded-xl bg-white/5 hover:bg-white/10 transition-all cursor-pointer">
+                        <div class="w-12 h-12 rounded-lg bg-blue-500/20 flex items-center justify-center flex-shrink-0">
+                            <span class="text-blue-400 font-bold">Ξ</span>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold mb-1">Ethereum DeFi'de Liderliğini Sürdürüyor</h4>
+                            <p class="text-sm text-gray-400">DeFi piyasası 2026'da 231 milyar dolara ulaşması bekleniyor. Layer-2 çözümleri işlem ücretlerini düşürüyor.</p>
+                            <p class="text-xs text-gray-500 mt-2">5 saat önce • Bloomberg</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start gap-4 p-4 rounded-xl bg-white/5 hover:bg-white/10 transition-all cursor-pointer">
+                        <div class="w-12 h-12 rounded-lg bg-purple-500/20 flex items-center justify-center flex-shrink-0">
+                            <span class="text-purple-400 font-bold">S</span>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold mb-1">Solana Ekosistemi Hızla Büyüyor</h4>
+                            <p class="text-sm text-gray-400">Solana'nın hızı ve düşük ücretleriyle DeFi ve NFT pazarında payı artıyor. 200-500 dolar hedef fiyat aralığı konuşuluyor.</p>
+                            <p class="text-xs text-gray-500 mt-2">8 saat önce • CryptoNews</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start gap-4 p-4 rounded-xl bg-white/5 hover:bg-white/10 transition-all cursor-pointer">
+                        <div class="w-12 h-12 rounded-lg bg-green-500/20 flex items-center justify-center flex-shrink-0">
+                            <span class="text-green-400 font-bold">R</span>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold mb-1">Ripple (XRP) Bankacılık Entegrasyonu</h4>
+                            <p class="text-sm text-gray-400">XRP sınır ötesi ödemelerde bankalar tarafından benimseniyor. Hukuki zafer sonrası kurumsal kullanım artıyor.</p>
+                            <p class="text-xs text-gray-500 mt-2">1 gün önce • Reuters</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- PRICING -->
+    <section id="pricing" class="relative z-10 py-20 px-6">
+        <div class="max-w-5xl mx-auto">
+            <div class="text-center mb-16">
+                <h2 class="font-display text-4xl font-bold mb-4">Basit ve <span class="gradient-text">Şeffaf Fiyatlandırma</span></h2>
+                <p class="text-gray-400">Gizli ücret yok. Her şey açık ve net.</p>
+            </div>
+            <div class="grid md:grid-cols-3 gap-6">
+                <div class="glass-card rounded-2xl p-8 card-hover">
+                    <h3 class="text-lg font-semibold text-gray-400 mb-2">Başlangıç</h3>
+                    <div class="flex items-baseline gap-1 mb-6">
+                        <span class="text-4xl font-bold">₺0</span>
+                        <span class="text-gray-500">/ay</span>
+                    </div>
+                    <ul class="space-y-3 mb-8 text-sm text-gray-400">
+                        <li class="flex items-center gap-2"><svg class="w-4 h-4 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>Ücretsiz banka kartı</li>
+                        <li class="flex items-center gap-2"><svg class="w-4 h-4 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>5 para birimi cüzdanı</li>
+                        <li class="flex items-center gap-2"><svg class="w-4 h-4 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>Aylık 10 ücretsiz transfer</li>
+                    </ul>
+                    <button onclick="showAuth('register')" class="w-full py-3 rounded-xl border border-white/10 hover:bg-white/5 transition-all text-sm font-semibold">Hemen Başla</button>
+                </div>
+                <div class="glass-card rounded-2xl p-8 card-hover border-blue-500/30 relative overflow-hidden">
+                    <div class="absolute top-0 right-0 bg-blue-500 text-white text-xs px-3 py-1 rounded-bl-lg font-semibold">POPÜLER</div>
+                    <h3 class="text-lg font-semibold text-blue-400 mb-2">Premium</h3>
+                    <div class="flex items-baseline gap-1 mb-6">
+                        <span class="text-4xl font-bold">₺49</span>
+                        <span class="text-gray-500">/ay</span>
+                    </div>
+                    <ul class="space-y-3 mb-8 text-sm text-gray-400">
+                        <li class="flex items-center gap-2"><svg class="w-4 h-4 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>Metal banka kartı</li>
+                        <li class="flex items-center gap-2"><svg class="w-4 h-4 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>Sınırsız para birimi</li>
+                        <li class="flex items-center gap-2"><svg class="w-4 h-4 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>Sınırsız ücretsiz transfer</li>
+                        <li class="flex items-center gap-2"><svg class="w-4 h-4 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>Kripto cüzdanı</li>
+                        <li class="flex items-center gap-2"><svg class="w-4 h-4 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>Öncelikli destek</li>
+                    </ul>
+                    <button onclick="showAuth('register')" class="w-full btn-primary py-3 rounded-xl text-white text-sm font-semibold">Premium'a Geç</button>
+                </div>
+                <div class="glass-card rounded-2xl p-8 card-hover">
+                    <h3 class="text-lg font-semibold text-gray-400 mb-2">Business</h3>
+                    <div class="flex items-baseline gap-1 mb-6">
+                        <span class="text-4xl font-bold">₺199</span>
+                        <span class="text-gray-500">/ay</span>
+                    </div>
+                    <ul class="space-y-3 mb-8 text-sm text-gray-400">
+                        <li class="flex items-center gap-2"><svg class="w-4 h-4 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>Çoklu kullanıcı yönetimi</li>
+                        <li class="flex items-center gap-2"><svg class="w-4 h-4 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>API erişimi</li>
+                        <li class="flex items-center gap-2"><svg class="w-4 h-4 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>Özel hesap yöneticisi</li>
+                    </ul>
+                    <button onclick="showAuth('register')" class="w-full py-3 rounded-xl border border-white/10 hover:bg-white/5 transition-all text-sm font-semibold">İletişime Geç</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- AUTH MODAL -->
+    <div id="auth-modal" class="fixed inset-0 z-50 hidden">
+        <div class="absolute inset-0 bg-black/80 backdrop-blur-sm" onclick="closeAuth()"></div>
+        <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full max-w-md p-6">
+            <div class="glass-card rounded-3xl p-8 relative modal-enter">
+                <button onclick="closeAuth()" class="absolute top-4 right-4 text-gray-400 hover:text-white">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+                
+                <!-- Login Form -->
+                <div id="login-form" class="space-y-6">
+                    <div class="text-center">
+                        <h2 class="font-display text-2xl font-bold mb-2">Tekrar Hoşgeldin</h2>
+                        <p class="text-gray-400 text-sm">Hesabına giriş yaparak devam et</p>
+                    </div>
+                    <form onsubmit="handleLogin(event)" class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-400 mb-2">E-posta</label>
+                            <input type="email" id="login-email" class="input-field w-full px-4 py-3 rounded-xl text-white" placeholder="ornek@email.com" required>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-400 mb-2">Şifre</label>
+                            <input type="password" id="login-password" class="input-field w-full px-4 py-3 rounded-xl text-white" placeholder="••••••••" required>
+                        </div>
+                        <div class="flex justify-between items-center text-sm">
+                            <label class="flex items-center gap-2 text-gray-400 cursor-pointer">
+                                <input type="checkbox" class="rounded bg-dark-800 border-white/10">
+                                <span>Beni hatırla</span>
+                            </label>
+                            <a href="#" class="text-blue-400 hover:text-blue-300">Şifremi unuttum</a>
+                        </div>
+                        <button type="submit" class="w-full btn-primary py-3 rounded-xl text-white font-semibold">Giriş Yap</button>
+                    </form>
+                    <p class="text-center text-sm text-gray-400">Hesabın yok mu? <button onclick="switchAuth('register')" class="text-blue-400 hover:text-blue-300 font-semibold">Kaydol</button></p>
+                </div>
+
+                <!-- Register Form -->
+                <div id="register-form" class="space-y-6 hidden">
+                    <div class="text-center">
+                        <h2 class="font-display text-2xl font-bold mb-2">NORDbank'a Katıl</h2>
+                        <p class="text-gray-400 text-sm">2 dakikada hesabını oluştur</p>
+                    </div>
+                    <form onsubmit="handleRegister(event)" class="space-y-4">
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-400 mb-2">Ad</label>
+                                <input type="text" id="reg-firstname" class="input-field w-full px-4 py-3 rounded-xl text-white" placeholder="Ahmet" required>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-400 mb-2">Soyad</label>
+                                <input type="text" id="reg-lastname" class="input-field w-full px-4 py-3 rounded-xl text-white" placeholder="Yılmaz" required>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-400 mb-2">E-posta</label>
+                            <input type="email" id="reg-email" class="input-field w-full px-4 py-3 rounded-xl text-white" placeholder="ornek@email.com" required>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-400 mb-2">Telefon</label>
+                            <input type="tel" id="reg-phone" class="input-field w-full px-4 py-3 rounded-xl text-white" placeholder="+90 5XX XXX XX XX" required>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-400 mb-2">Şifre</label>
+                            <input type="password" id="reg-password" class="input-field w-full px-4 py-3 rounded-xl text-white" placeholder="En az 8 karakter" required minlength="8">
+                        </div>
+                        <div class="flex items-start gap-2 text-sm text-gray-400">
+                            <input type="checkbox" required class="mt-1 rounded bg-dark-800 border-white/10">
+                            <span><a href="#" class="text-blue-400">Kullanım Koşulları</a>'nı ve <a href="#" class="text-blue-400">Gizlilik Politikası</a>'nı kabul ediyorum.</span>
+                        </div>
+                        <button type="submit" class="w-full btn-primary py-3 rounded-xl text-white font-semibold">Hesap Oluştur</button>
+                    </form>
+                    <p class="text-center text-sm text-gray-400">Zaten hesabın var mı? <button onclick="switchAuth('login')" class="text-blue-400 hover:text-blue-300 font-semibold">Giriş Yap</button></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- DASHBOARD -->
+    <section id="dashboard" class="relative z-10 pt-24 pb-12 px-6 hidden">
+        <div class="max-w-7xl mx-auto">
+            <!-- Welcome Banner -->
+            <div class="glass-card rounded-2xl p-6 mb-8 border-l-4 border-blue-500 flex items-center justify-between">
+                <div>
+                    <h1 class="font-display text-2xl font-bold">Hoşgeldin, <span id="dash-name" class="gradient-text">Kullanıcı</span> 👋</h1>
+                    <p class="text-gray-400 text-sm mt-1">Hesabın hazır. İşlemlerine hemen başlayabilirsin.</p>
+                </div>
+                <div class="hidden md:block text-right">
+                    <p class="text-xs text-gray-500">Son giriş</p>
+                    <p class="text-sm text-gray-300" id="last-login">Bugün, 14:30</p>
+                </div>
+            </div>
+
+            <!-- Stats Grid -->
+            <div class="grid md:grid-cols-4 gap-6 mb-8">
+                <div class="glass-card rounded-2xl p-6 relative overflow-hidden">
+                    <div class="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 rounded-full -mr-16 -mt-16"></div>
+                    <p class="text-sm text-gray-400 mb-1">Toplam Bakiye</p>
+                    <p class="text-3xl font-bold" id="total-balance">₺0.00</p>
+                    <div class="flex items-center gap-1 mt-2 text-sm text-green-400">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
+                        <span>+12.5% bu ay</span>
+                    </div>
+                </div>
+                <div class="glass-card rounded-2xl p-6">
+                    <p class="text-sm text-gray-400 mb-1">Aylık Gelir</p>
+                    <p class="text-3xl font-bold text-green-400" id="monthly-income">₺0.00</p>
+                    <div class="flex items-center gap-1 mt-2 text-sm text-gray-500">
+                        <span>Ortalama ₺45K/ay</span>
+                    </div>
+                </div>
+                <div class="glass-card rounded-2xl p-6">
+                    <p class="text-sm text-gray-400 mb-1">Aylık Gider</p>
+                    <p class="text-3xl font-bold text-red-400" id="monthly-expense">₺0.00</p>
+                    <div class="flex items-center gap-1 mt-2 text-sm text-gray-500">
+                        <span>Bütçenin %32'si</span>
+                    </div>
+                </div>
+                <div class="glass-card rounded-2xl p-6">
+                    <p class="text-sm text-gray-400 mb-1">Yatırım Getirisi</p>
+                    <p class="text-3xl font-bold text-blue-400">%8.42</p>
+                    <div class="flex items-center gap-1 mt-2 text-sm text-green-400">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
+                        <span>+2.1% geçen aya göre</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions & Add Balance -->
+            <div class="grid lg:grid-cols-3 gap-6 mb-8">
+                <!-- Add Balance Card -->
+                <div class="lg:col-span-1 crypto-card rounded-2xl p-6">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-10 h-10 rounded-full bg-yellow-500/20 flex items-center justify-center">
+                            <svg class="w-5 h-5 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        </div>
+                        <div>
+                            <h3 class="font-bold">Bakiye Ekle</h3>
+                            <p class="text-xs text-gray-400">Kripto ile anında yükle</p>
+                        </div>
+                    </div>
+                    <form onsubmit="handleAddBalance(event)" class="space-y-4">
+                        <div>
+                            <label class="block text-xs text-gray-400 mb-1">Miktar ($)</label>
+                            <input type="number" id="add-balance-amount" class="input-field w-full px-4 py-3 rounded-xl text-white text-lg font-bold" placeholder="0.00" required min="1" step="0.01">
+                        </div>
+                        <div class="p-3 rounded-lg bg-white/5 text-xs text-gray-400">
+                            <div class="flex justify-between mb-1">
+                                <span>Kur</span>
+                                <span class="text-white">1 USD = ₺32.50</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>İşlem Ücreti</span>
+                                <span class="text-green-400">%0</span>
+                            </div>
+                        </div>
+                        <button type="submit" class="w-full btn-crypto py-3 rounded-xl text-white font-semibold flex items-center justify-center gap-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                            Kripto Ödeme Yap
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="lg:col-span-2 glass-card rounded-2xl p-6">
+                    <h3 class="font-semibold mb-6">Hızlı İşlemler</h3>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                        <button onclick="showTransferModal()" class="flex flex-col items-center gap-3 p-4 rounded-xl bg-white/5 hover:bg-white/10 transition-all text-center group">
+                            <div class="w-12 h-12 rounded-full bg-blue-500/20 flex items-center justify-center group-hover:scale-110 transition-transform">
+                                <svg class="w-6 h-6 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
+                            </div>
+                            <div>
+                                <p class="font-medium text-sm">Para Transferi</p>
+                                <p class="text-xs text-gray-400">IBAN/telefon</p>
+                            </div>
+                        </button>
+                        <button onclick="window.open('https://nor-dwallet.vercel.app/', '_blank')" class="flex flex-col items-center gap-3 p-4 rounded-xl bg-white/5 hover:bg-white/10 transition-all text-center group">
+                            <div class="w-12 h-12 rounded-full bg-yellow-500/20 flex items-center justify-center group-hover:scale-110 transition-transform">
+                                <svg class="w-6 h-6 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
+                            </div>
+                            <div>
+                                <p class="font-medium text-sm">NORDwallet</p>
+                                <p class="text-xs text-gray-400">Kripto cüzdan</p>
+                            </div>
+                        </button>
+                        <button class="flex flex-col items-center gap-3 p-4 rounded-xl bg-white/5 hover:bg-white/10 transition-all text-center group">
+                            <div class="w-12 h-12 rounded-full bg-purple-500/20 flex items-center justify-center group-hover:scale-110 transition-transform">
+                                <svg class="w-6 h-6 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
+                            </div>
+                            <div>
+                                <p class="font-medium text-sm">Fatura Öde</p>
+                                <p class="text-xs text-gray-400">Elektrik, su, doğalgaz</p>
+                            </div>
+                        </button>
+                        <button class="flex flex-col items-center gap-3 p-4 rounded-xl bg-white/5 hover:bg-white/10 transition-all text-center group">
+                            <div class="w-12 h-12 rounded-full bg-green-500/20 flex items-center justify-center group-hover:scale-110 transition-transform">
+                                <svg class="w-6 h-6 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            </div>
+                            <div>
+                                <p class="font-medium text-sm">Döviz Al/Sat</p>
+                                <p class="text-xs text-gray-400">40+ para birimi</p>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid lg:grid-cols-3 gap-6">
+                <!-- Chart -->
+                <div class="lg:col-span-2 glass-card rounded-2xl p-6">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="font-semibold">Harcama Analizi</h3>
+                        <div class="flex gap-2">
+                            <button class="px-3 py-1 rounded-lg text-xs bg-blue-500/20 text-blue-400 font-medium">Haftalık</button>
+                            <button class="px-3 py-1 rounded-lg text-xs text-gray-400 hover:bg-white/5">Aylık</button>
+                            <button class="px-3 py-1 rounded-lg text-xs text-gray-400 hover:bg-white/5">Yıllık</button>
+                        </div>
+                    </div>
+                    <canvas id="spendingChart" height="200"></canvas>
+                </div>
+
+                <!-- Crypto Mini Widget -->
+                <div class="glass-card rounded-2xl p-6">
+                    <div class="flex items-center justify-between mb-6">
+                        <h3 class="font-semibold">Kripto Portföy</h3>
+                        <button onclick="window.open('https://nor-dwallet.vercel.app/', '_blank')" class="text-xs text-blue-400 hover:text-blue-300">Detaylar →</button>
+                    </div>
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between p-3 rounded-xl bg-white/5">
+                            <div class="flex items-center gap-3">
+                                <div class="w-8 h-8 rounded-full bg-orange-500/20 flex items-center justify-center text-orange-400 font-bold text-xs">₿</div>
+                                <div>
+                                    <p class="text-sm font-medium">Bitcoin</p>
+                                    <p class="text-xs text-gray-500">0.45 BTC</p>
+                                </div>
+                            </div>
+                            <span class="text-sm font-semibold text-white">$41,985</span>
+                        </div>
+                        <div class="flex items-center justify-between p-3 rounded-xl bg-white/5">
+                            <div class="flex items-center gap-3">
+                                <div class="w-8 h-8 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-400 font-bold text-xs">Ξ</div>
+                                <div>
+                                    <p class="text-sm font-medium">Ethereum</p>
+                                    <p class="text-xs text-gray-500">5.2 ETH</p>
+                                </div>
+                            </div>
+                            <span class="text-sm font-semibold text-white">$17,940</span>
+                        </div>
+                        <div class="flex items-center justify-between p-3 rounded-xl bg-white/5">
+                            <div class="flex items-center gap-3">
+                                <div class="w-8 h-8 rounded-full bg-purple-500/20 flex items-center justify-center text-purple-400 font-bold text-xs">S</div>
+                                <div>
+                                    <p class="text-sm font-medium">Solana</p>
+                                    <p class="text-xs text-gray-500">120 SOL</p>
+                                </div>
+                            </div>
+                            <span class="text-sm font-semibold text-white">$17,100</span>
+                        </div>
+                        <div class="pt-4 border-t border-white/5">
+                            <div class="flex justify-between text-sm">
+                                <span class="text-gray-400">Toplam Değer</span>
+                                <span class="font-bold text-white">$77,025</span>
+                            </div>
+                        </div>
+                    </div>
+                    <button onclick="window.open('https://nor-dwallet.vercel.app/', '_blank')" class="w-full mt-4 btn-success py-2.5 rounded-xl text-white text-sm font-semibold flex items-center justify-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                        NORDwallet'e Git
+                    </button>
+                </div>
+            </div>
+
+            <!-- Recent Transactions -->
+            <div class="mt-6 glass-card rounded-2xl p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="font-semibold">Son İşlemler</h3>
+                    <button class="text-sm text-blue-400 hover:text-blue-300">Tümünü Gör</button>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead>
+                            <tr class="text-left text-xs text-gray-500 border-b border-white/5">
+                                <th class="pb-3 font-medium">İşlem</th>
+                                <th class="pb-3 font-medium">Kategori</th>
+                                <th class="pb-3 font-medium">Tarih</th>
+                                <th class="pb-3 font-medium">Durum</th>
+                                <th class="pb-3 font-medium text-right">Tutar</th>
+                            </tr>
+                        </thead>
+                        <tbody id="transaction-list" class="text-sm"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+     Kod koptu, devam ediyorum:
+
+```html
+    </section>
+
+    <!-- TRANSFER MODAL -->
+    <div id="transfer-modal" class="fixed inset-0 z-50 hidden">
+        <div class="absolute inset-0 bg-black/80 backdrop-blur-sm" onclick="closeTransferModal()"></div>
+        <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full max-w-md p-6">
+            <div class="glass-card rounded-3xl p-8 relative modal-enter">
+                <button onclick="closeTransferModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+                <div class="text-center mb-6">
+                    <h2 class="font-display text-2xl font-bold mb-2">Para Gönder</h2>
+                    <p class="text-gray-400 text-sm">Hızlı ve güvenli transfer</p>
+                </div>
+                <form onsubmit="handleTransfer(event)" class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-400 mb-2">Alıcı IBAN veya Telefon</label>
+                        <input type="text" id="transfer-recipient" class="input-field w-full px-4 py-3 rounded-xl text-white" placeholder="TR00 0000 0000 0000 0000 0000 00" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-400 mb-2">Tutar (₺)</label>
+                        <input type="number" id="transfer-amount" class="input-field w-full px-4 py-3 rounded-xl text-white text-2xl font-bold" placeholder="0.00" required min="1" step="0.01">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-400 mb-2">Açıklama</label>
+                        <input type="text" id="transfer-desc" class="input-field w-full px-4 py-3 rounded-xl text-white" placeholder="Transfer açıklaması">
+                    </div>
+                    <div class="p-4 rounded-xl bg-white/5 text-sm text-gray-400">
+                        <div class="flex justify-between mb-2">
+                            <span>Transfer Ücreti</span>
+                            <span class="text-white">₺0.00</span>
+                        </div>
+                        <div class="flex justify-between font-semibold text-white">
+                            <span>Toplam</span>
+                            <span id="transfer-total">₺0.00</span>
+                        </div>
+                    </div>
+                    <button type="submit" class="w-full btn-primary py-4 rounded-xl text-white font-semibold text-lg">Gönder</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed bottom-6 right-6 z-50 transform translate-y-20 opacity-0 transition-all duration-300">
+        <div class="glass-card rounded-xl px-6 py-4 flex items-center gap-3 border-l-4" id="toast-border">
+            <svg class="w-5 h-5" id="toast-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+            <span id="toast-message" class="text-sm font-medium">İşlem başarılı!</span>
+        </div>
+    </div>
+
+    <script>
+        // Data Store
+        let currentUser = null;
+        let users = JSON.parse(localStorage.getItem('nordbank_users')) || [];
+        let transactions = JSON.parse(localStorage.getItem('nordbank_transactions')) || [];
+        const USD_TO_TRY = 32.50;
+
+        // Demo user if no users exist
+        if (users.length === 0) {
+            const demoUser = {
+                id: 'demo-' + Date.now(),
+                firstName: 'Ahmet',
+                lastName: 'Yılmaz',
+                email: 'demo@nordbank.com',
+                phone: '+90 555 123 4567',
+                password: 'demo1234',
+                balance: 124580.00,
+                createdAt: new Date().toISOString()
+            };
+            users.push(demoUser);
+            localStorage.setItem('nordbank_users', JSON.stringify(users));
+            
+            const demoTransactions = [
+                { id: 1, userId: demoUser.id, type: 'expense', title: 'Netflix Abonelik', category: 'Eğlence', date: '2026-05-26', amount: 119.99, status: 'Tamamlandı' },
+                { id: 2, userId: demoUser.id, type: 'income', title: 'Maaş Ödemesi', category: 'Gelir', date: '2026-05-25', amount: 45000.00, status: 'Tamamlandı' },
+                { id: 3, userId: demoUser.id, type: 'expense', title: 'Market Alışverişi', category: 'Market', date: '2026-05-24', amount: 845.50, status: 'Tamamlandı' },
+                { id: 4, userId: demoUser.id, type: 'expense', title: 'Uber', category: 'Ulaşım', date: '2026-05-23', amount: 125.00, status: 'Tamamlandı' },
+                { id: 5, userId: demoUser.id, type: 'income', title: 'Freelance Ödeme', category: 'Gelir', date: '2026-05-22', amount: 3500.00, status: 'Tamamlandı' }
+            ];
+            localStorage.setItem('nordbank_transactions', JSON.stringify(demoTransactions));
+            transactions = demoTransactions;
+        }
+
+        // Check for existing session
+        const savedUser = localStorage.getItem('nordbank_current_user');
+        if (savedUser) {
+            currentUser = JSON.parse(savedUser);
+            updateUIForUser();
+        }
+
+        // Crypto Price Simulation
+        function simulateCryptoPrices() {
+            const prices = {
+                btc: 93300 + (Math.random() - 0.5) * 1000,
+                eth: 3450 + (Math.random() - 0.5) * 50,
+                sol: 142.50 + (Math.random() - 0.5) * 5,
+                xrp: 2.35 + (Math.random() - 0.5) * 0.1
+            };
+            
+            document.getElementById('btc-price').textContent = '$' + prices.btc.toLocaleString('en-US', {maximumFractionDigits: 0});
+            document.getElementById('eth-price').textContent = '$' + prices.eth.toLocaleString('en-US', {maximumFractionDigits: 0});
+            document.getElementById('sol-price').textContent = '$' + prices.sol.toFixed(2);
+            document.getElementById('xrp-price').textContent = '$' + prices.xrp.toFixed(2);
+        }
+        
+        setInterval(simulateCryptoPrices, 5000);
+        simulateCryptoPrices();
+
+        // Auth Functions
+        function showAuth(type) {
+            document.getElementById('auth-modal').classList.remove('hidden');
+            switchAuth(type);
+        }
+
+        function closeAuth() {
+            document.getElementById('auth-modal').classList.add('hidden');
+        }
+
+        function switchAuth(type) {
+            if (type === 'login') {
+                document.getElementById('login-form').classList.remove('hidden');
+                document.getElementById('register-form').classList.add('hidden');
+            } else {
+                document.getElementById('login-form').classList.add('hidden');
+                document.getElementById('register-form').classList.remove('hidden');
+            }
+        }
+
+        function handleLogin(e) {
+            e.preventDefault();
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            
+            const user = users.find(u => u.email === email && u.password === password);
+            if (user) {
+                currentUser = user;
+                localStorage.setItem('nordbank_current_user', JSON.stringify(user));
+                closeAuth();
+                updateUIForUser();
+                showToast('Başarıyla giriş yaptınız! Hoşgeldin ' + user.firstName + ' 👋');
+            } else {
+                showToast('E-posta veya şifre hatalı!', 'error');
+            }
+        }
+
+        function handleRegister(e) {
+            e.preventDefault();
+            const firstName = document.getElementById('reg-firstname').value;
+            const lastName = document.getElementById('reg-lastname').value;
+            const email = document.getElementById('reg-email').value;
+            const phone = document.getElementById('reg-phone').value;
+            const password = document.getElementById('reg-password').value;
+
+            if (users.find(u => u.email === email)) {
+                showToast('Bu e-posta adresi zaten kayıtlı!', 'error');
+                return;
+            }
+
+            const newUser = {
+                id: 'user-' + Date.now(),
+                firstName,
+                lastName,
+                email,
+                phone,
+                password,
+                balance: 1000.00,
+                createdAt: new Date().toISOString()
+            };
+
+            users.push(newUser);
+            localStorage.setItem('nordbank_users', JSON.stringify(users));
+            
+            const welcomeTx = {
+                id: Date.now(),
+                userId: newUser.id,
+                type: 'income',
+                title: 'Hoşgeldin Bonusu',
+                category: 'Bonus',
+                date: new Date().toISOString().split('T')[0],
+                amount: 1000.00,
+                status: 'Tamamlandı'
+            };
+            transactions.push(welcomeTx);
+            localStorage.setItem('nordbank_transactions', JSON.stringify(transactions));
+
+            currentUser = newUser;
+            localStorage.setItem('nordbank_current_user', JSON.stringify(newUser));
+            closeAuth();
+            updateUIForUser();
+            showToast('Hesabınız oluşturuldu! ₺1.000 hoşgeldin bonusu kazandınız 🎉');
+        }
+
+        function logout() {
+            currentUser = null;
+            localStorage.removeItem('nordbank_current_user');
+            document.getElementById('nav-auth').classList.remove('hidden');
+            document.getElementById('nav-auth').classList.add('flex');
+            document.getElementById('nav-user').classList.add('hidden');
+            document.getElementById('nav-user').classList.remove('flex');
+            document.getElementById('landing').classList.remove('hidden');
+            document.getElementById('dashboard').classList.add('hidden');
+            showToast('Çıkış yapıldı. Görüşmek üzere!');
+        }
+
+        function updateUIForUser() {
+            document.getElementById('nav-auth').classList.add('hidden');
+            document.getElementById('nav-auth').classList.remove('flex');
+            document.getElementById('nav-user').classList.remove('hidden');
+            document.getElementById('nav-user').classList.add('flex');
+            document.getElementById('user-name-display').textContent = currentUser.firstName + ' ' + currentUser.lastName;
+            document.getElementById('nav-avatar').textContent = currentUser.firstName.charAt(0);
+            
+            showSection('dashboard');
+            loadDashboard();
+        }
+
+        // Dashboard Functions
+        function loadDashboard() {
+            document.getElementById('dash-name').textContent = currentUser.firstName;
+            document.getElementById('total-balance').textContent = '₺' + currentUser.balance.toLocaleString('tr-TR', {minimumFractionDigits: 2});
+            
+            const userTransactions = transactions.filter(t => t.userId === currentUser.id);
+            const income = userTransactions.filter(t => t.type === 'income').reduce((sum, t) => sum + t.amount, 0);
+            const expense = userTransactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0);
+            
+            document.getElementById('monthly-income').textContent = '₺' + income.toLocaleString('tr-TR', {minimumFractionDigits: 2});
+            document.getElementById('monthly-expense').textContent = '₺' + expense.toLocaleString('tr-TR', {minimumFractionDigits: 2});
+
+            renderTransactions(userTransactions);
+            renderChart();
+        }
+
+        function renderTransactions(userTransactions) {
+            const tbody = document.getElementById('transaction-list');
+            tbody.innerHTML = '';
+            
+            userTransactions.slice().reverse().slice(0, 10).forEach(tx => {
+                const row = document.createElement('tr');
+                row.className = 'border-b border-white/5 hover:bg-white/5 transition-colors';
+                const isIncome = tx.type === 'income';
+                const colorClass = isIncome ? 'text-green-400' : 'text-red-400';
+                const sign = isIncome ? '+' : '-';
+                
+                row.innerHTML = `
+                    <td class="py-4">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-full ${isIncome ? 'bg-green-500/20' : 'bg-red-500/20'} flex items-center justify-center">
+                                <svg class="w-4 h-4 ${colorClass}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="${isIncome ? 'M12 4v16m8-8H4' : 'M20 12H4'}"></path>
+                                </svg>
+                            </div>
+                            <span class="font-medium">${tx.title}</span>
+                        </div>
+                    </td>
+                    <td class="py-4 text-gray-400">${tx.category}</td>
+                    <td class="py-4 text-gray-400">${tx.date}</td>
+                    <td class="py-4"><span class="px-2 py-1 rounded-full text-xs bg-green-500/10 text-green-400">${tx.status}</span></td>
+                    <td class="py-4 text-right font-semibold ${colorClass}">${sign}₺${tx.amount.toLocaleString('tr-TR', {minimumFractionDigits: 2})}</td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function renderChart() {
+            const ctx = document.getElementById('spendingChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt', 'Paz'],
+                    datasets: [{
+                        label: 'Gelir',
+                        data: [12000, 19000, 15000, 25000, 22000, 30000, 45000],
+                        borderColor: '#10b981',
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }, {
+                        label: 'Gider',
+                        data: [8000, 12000, 10000, 15000, 18000, 14000, 11000],
+                        borderColor: '#ef4444',
+                        backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: {
+                            grid: { color: 'rgba(255,255,255,0.05)' },
+                            ticks: { color: '#9ca3af' }
+                        },
+                        x: {
+                            grid: { display: false },
+                            ticks: { color: '#9ca3af' }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Add Balance (Crypto Payment Simulation)
+        function handleAddBalance(e) {
+            e.preventDefault();
+            const usdAmount = parseFloat(document.getElementById('add-balance-amount').value);
+            
+            if (!usdAmount || usdAmount <= 0) {
+                showToast('Geçerli bir miktar girin!', 'error');
+                return;
+            }
+
+            const tryAmount = usdAmount * USD_TO_TRY;
+            
+            // Simulate crypto payment processing
+            showToast('Kripto ödeme işleniyor...', 'info');
+            
+            setTimeout(() => {
+                // Update balance
+                currentUser.balance += tryAmount;
+                const userIndex = users.findIndex(u => u.id === currentUser.id);
+                users[userIndex] = currentUser;
+                localStorage.setItem('nordbank_users', JSON.stringify(users));
+                localStorage.setItem('nordbank_current_user', JSON.stringify(currentUser));
+
+                // Add transaction
+                const newTx = {
+                    id: Date.now(),
+                    userId: currentUser.id,
+                    type: 'income',
+                    title: 'Kripto Bakiye Yükleme ($' + usdAmount + ')',
+                    category: 'Kripto',
+                    date: new Date().toISOString().split('T')[0],
+                    amount: tryAmount,
+                    status: 'Tamamlandı'
+                };
+                transactions.push(newTx);
+                localStorage.setItem('nordbank_transactions', JSON.stringify(transactions));
+
+                loadDashboard();
+                showToast('✅ Kripto ödeme başarılı! ₺' + tryAmount.toLocaleString('tr-TR', {minimumFractionDigits: 2}) + ' hesabınıza yansıdı.');
+                
+                // Reset form
+                e.target.reset();
+            }, 2000);
+        }
+
+        // Transfer Functions
+        function showTransferModal() {
+            document.getElementById('transfer-modal').classList.remove('hidden');
+        }
+
+        function closeTransferModal() {
+            document.getElementById('transfer-modal').classList.add('hidden');
+        }
+
+        document.getElementById('transfer-amount').addEventListener('input', function(e) {
+            const amount = parseFloat(e.target.value) || 0;
+            document.getElementById('transfer-total').textContent = '₺' + amount.toLocaleString('tr-TR', {minimumFractionDigits: 2});
+        });
+
+        function handleTransfer(e) {
+            e.preventDefault();
+            const recipient = document.getElementById('transfer-recipient').value;
+            const amount = parseFloat(document.getElementById('transfer-amount').value);
+            const desc = document.getElementById('transfer-desc').value || 'Para Transferi';
+
+            if (amount > currentUser.balance) {
+                showToast('Yetersiz bakiye!', 'error');
+                return;
+            }
+
+            currentUser.balance -= amount;
+            const userIndex = users.findIndex(u => u.id === currentUser.id);
+            users[userIndex] = currentUser;
+            localStorage.setItem('nordbank_users', JSON.stringify(users));
+            localStorage.setItem('nordbank_current_user', JSON.stringify(currentUser));
+
+            const newTx = {
+                id: Date.now(),
+                userId: currentUser.id,
+                type: 'expense',
+                title: desc,
+                category: 'Transfer',
+                date: new Date().toISOString().split('T')[0],
+                amount: amount,
+                status: 'Tamamlandı'
+            };
+            transactions.push(newTx);
+            localStorage.setItem('nordbank_transactions', JSON.stringify(transactions));
+
+            closeTransferModal();
+            loadDashboard();
+            showToast('₺' + amount.toLocaleString('tr-TR') + ' başarıyla transfer edildi!');
+            e.target.reset();
+            document.getElementById('transfer-total').textContent = '₺0.00';
+        }
+
+        // UI Functions
+        function showSection(section) {
+            if (section === 'landing') {
+                document.getElementById('landing').classList.remove('hidden');
+                document.getElementById('dashboard').classList.add('hidden');
+            } else if (section === 'dashboard') {
+                document.getElementById('landing').classList.add('hidden');
+                document.getElementById('dashboard').classList.remove('hidden');
+            }
+            window.scrollTo(0, 0);
+        }
+
+        function scrollToFeatures() {
+            document.getElementById('features').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function scrollToPricing() {
+            document.getElementById('pricing').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function scrollToCrypto() {
+            document.getElementById('crypto-section').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toast-message');
+            const toastIcon = document.getElementById('toast-icon');
+            const toastBorder = document.getElementById('toast-border');
+            
+            toastMessage.textContent = message;
+            
+            if (type === 'error') {
+                toastBorder.className = 'glass-card rounded-xl px-6 py-4 flex items-center gap-3 border-l-4 border-red-500';
+                toastIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>';
+                toastIcon.classList.add('text-red-400');
+                toastIcon.classList.remove('text-green-400');
+            } else if (type === 'info') {
+                toastBorder.className = 'glass-card rounded-xl px-6 py-4 flex items-center gap-3 border-l-4 border-blue-500';
+                toastIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>';
+                toastIcon.classList.add('text-blue-400');
+                toastIcon.classList.remove('text-green-400');
+            } else {
+                toastBorder.className = 'glass-card rounded-xl px-6 py-4 flex items-center gap-3 border-l-4 border-green-500';
+                toastIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>';
+                toastIcon.classList.add('text-green-400');
+                toastIcon.classList.remove('text-red-400');
+            }
+            
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            
+            setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 4000);
+        }
+    </script>
+</body>
+</html>
